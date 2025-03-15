@@ -1,9 +1,10 @@
-
 #Pygame - template - skeleton for a new pygame project
 import pygame
 import random
 from os import path
 #img_dir = path.join(path.dirname(__file__), 'image_folder')
+
+
 
 
 #Constant for Screen Width, Height and FPS
@@ -40,9 +41,11 @@ player_img = pygame.image.load(path.join(img_dir,"playerShip1_red.png")).convert
 meteor_img = pygame.image.load(path.join(img_dir,"meteorGrey_med1.png")).convert_alpha( )
 bullet_img = pygame.image.load(path.join(img_dir,"laserBlue01.png")).convert_alpha( )
 
-# Lesson 9-10 : Step B1
-# Lesson 9-10 : Step B2
-# Lesson 9-10 : Step B3
+meteor_images = []
+meteor_list = ['meteorGrey_big1.png', 'meteorGrey_big2.png', 'meteorGrey_med1.png', 'meteorGrey_med2.png', 'meteorGrey_small1.png', 'meteorGrey_small2.png', 'meteorGreytiny1.png']
+
+for img in meteor_list:
+  meteor_images.append(pygame.image.load(path.join(img_dir,img)).convert_alpha())
 
 #Create our player class
 class Player(pygame.sprite.Sprite):
@@ -51,13 +54,9 @@ class Player(pygame.sprite.Sprite):
     
     self.image = pygame.transform.scale(player_img, (50, 38)
     self.image.get_rect()
-    # Lesson 9-10 : Step A1 
-
-
-    # Lesson 9-10 : Step A2
-
-    
-    
+    self.radius = 20
+    Pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
+ 
     self.rect.centerx = WIDTH / 2
     self.rect.bottom = HEIGHT - 10
     self.speedx = 0
@@ -83,16 +82,15 @@ class Player(pygame.sprite.Sprite):
     bullet = Bullet(self.rect.centerx, self.rect.top)
     all_sprites.add(bullet)
     bullets.add(bullet)
-
+    
+bullets = pygame.sprite.Group()
 
 #Create our mob class
 class Mob(pygame.sprite.Sprite):
   def __init__(self):
     pygame.sprite.Sprite.__init__(self)
-    #Lesson 9-10 : C7
-    #Lesson 9-10 : C8 (Remove B4)
-    #Lesson 9-10 : B4
-    #Lesson 9-10 : C8
+    self.image_orig = random.choice(meteor_images)
+    self.image = self.image_orig.copy()
 
     self.rect= self.image.get_rect()
     self.rectx = random.randrange(WIDTH - self.rect.width)    
@@ -100,55 +98,36 @@ class Mob(pygame.sprite.Sprite):
     self.speedy = random.randrange(1,8)
     self.speedx = random.randrange(-3, 3)
 
-    # Lesson 9-10 : Step A3
+    self.radius = int(self.rect.witdth * 0.95 / 2)
+    Pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
 
+      self.rot_speed = 0
 
-      # Lesson 9-10 : Step A4
+      self.rot_speed = random.randrange(-8, 8)
+      self.last_update = pygame.time.get_ticks()
 
-
-      # Lesson 9-10 : Step C9
-
-
-      # Lesson 9-10 : Step C1
-
-
-      # Lesson 9-10 : Step C2
-
-
-
-   # Lesson 9-10 : Step C3
-
-
-
-      # Lesson 9-10 : Step C4
-
-         # Lesson 9-10 : Remove this code in Step C11
-
-         # Lesson 9-10 : Step C5
+   def rotate(self):
+      now = pygame.time.get_ticks()
+      if now - self.last_update > 50:
+         self.last_update = now 
 
          
-         # Lesson 9-10 : Step C10
-
-         # Lesson 9-10 : Step C12 overtakes C10, remove C10
+       self.rot = (self.rot + self.rot_speed) % 360
 
 
          # Make meteor rotate around the same center
-         # Lesson 9-10 : Step C14
+         old_center = self.rect.center
+         self.image = pygame.transform.rotate(Self.image_orig, self.rot)
 
+         self.rect = self.image.get_rect()
 
-         # Lesson 9-10 : Step C11
-
-
-         # Lesson 9-10 : Step C13
-
-
-         # Lesson 9-10 : Step C15
+         self.rect.center = old_center
 
   def update(self):
 
     self.rect.y += self.speedy
     self.rect.x += self.speedy
-    # Lesson 9-10 : Step C6
+    self.rotate()
 
     if self.rect.top > HEIGHT + 10:
       self.rect.x = random.randrange(WIDTH = self.rect.width)
@@ -165,6 +144,12 @@ Class bullet(pygame.sprite.Sprite):
     self.rect.center = x
     self.speedy = -10
 
+def update(self):
+  self.rect.y += self.speedy
+  
+  if self.rect.bottom < 0:
+    self.kill
+
 
 #A sprite group is just a collection of sprites
 that you can act on all at the same time
@@ -177,9 +162,15 @@ all_sprites.add(player)
 
 all_sprites.update()
 
+for i in range(8):
+  m = Mob()
+  all_sprites.add(m)
+  mobs.add(m)
+
 
 #Game loop
 running = True
+
 while running:
   
   #Keep loop running at the same speed
@@ -191,6 +182,20 @@ while running:
     #Check for closing window
     if event.type == pygame.QUIT:
       running = False
+
+    elif event.type == pygame.KEYDOWN:
+      if event.key == pygame.K_SPACE:
+        player.shoot()
+
+  hits = pygame.sprite.groupcollide(player, mobs, False, pygame.sprite.collide_circle)
+
+  for hit in hits:
+     m = Mob()
+     all_sprites.add(m)
+     mobs.add(m)
+  
+
+  
 
   #Update function : Add in the update portion
   #Update
