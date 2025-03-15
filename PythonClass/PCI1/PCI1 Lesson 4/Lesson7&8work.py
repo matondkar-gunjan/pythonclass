@@ -6,6 +6,8 @@ from os import path
 #img_dir = path.join(path.dirname(__file__), 'image_folder')
 
 
+
+
 #Constant for Screen Width, Height and FPS
 WIDTH = 480
 HEIGHT = 600
@@ -55,9 +57,7 @@ class Player(pygame.sprite.Sprite):
 
 
     # Lesson 9-10 : Step A2
-
-    
-    
+ 
     self.rect.centerx = WIDTH / 2
     self.rect.bottom = HEIGHT - 10
     self.speedx = 0
@@ -83,11 +83,14 @@ class Player(pygame.sprite.Sprite):
     bullet = Bullet(self.rect.centerx, self.rect.top)
     all_sprites.add(bullet)
     bullets.add(bullet)
+    
+bullets = pygame.sprite.Group()
 
 #Create our mob class
 class Mob(pygame.sprite.Sprite):
   def __init__(self):
     pygame.sprite.Sprite.__init__(self)
+    self.image = pygame.transform.scale(bullet_img, (40,40))
     #Lesson 9-10 : C7
     #Lesson 9-10 : C8 (Remove B4)
     #Lesson 9-10 : B4
@@ -164,6 +167,12 @@ Class bullet(pygame.sprite.Sprite):
     self.rect.center = x
     self.speedy = -10
 
+def update(self):
+  self.rect.y += self.speedy
+  
+  if self.rect.bottom < 0:
+    self.kill
+
 
 #A sprite group is just a collection of sprites
 that you can act on all at the same time
@@ -175,6 +184,11 @@ player = Player()
 all_sprites.add(player)
 
 all_sprites.update()
+
+for i in range(8):
+  m = Mob()
+  all_sprites.add(m)
+  mobs.add(m)
 
 
 #Game loop
@@ -190,6 +204,20 @@ while running:
     #Check for closing window
     if event.type == pygame.QUIT:
       running = False
+
+    elif event.type == pygame.KEYDOWN:
+      if event.key == pygame.K_SPACE:
+        player.shoot()
+
+  hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
+
+  for hit in hits:
+     m = Mob()
+     all_sprites.add(m)
+     mobs.add(m)
+  
+
+  
 
   #Update function : Add in the update portion
   #Update
